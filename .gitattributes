@@ -1,3 +1,2 @@
 # s6-overlay scripts must have LF line endings inside the container
-caddy-proxy-manager/rootfs/**        text eol=lf
-caddy-proxy-manager/rootfs/**/run   text eol=lf
+caddy-proxy-manager/**               text eol=lf
