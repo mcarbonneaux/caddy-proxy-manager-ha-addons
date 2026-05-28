@@ -1,0 +1,36 @@
+#!/usr/bin/with-contenv bashio
+
+bashio::log.info "Reading add-on options..."
+
+SESSION_SECRET=$(bashio::config 'session_secret')
+ADMIN_USERNAME=$(bashio::config 'admin_username')
+ADMIN_PASSWORD=$(bashio::config 'admin_password')
+HTTP_PORT=$(bashio::config 'http_port')
+HTTPS_PORT=$(bashio::config 'https_port')
+
+# Validate required fields
+if bashio::var.is_empty "${SESSION_SECRET}" || [ ${#SESSION_SECRET} -lt 32 ]; then
+  bashio::exit.nok "session_secret must be at least 32 characters long"
+fi
+if bashio::var.is_empty "${ADMIN_PASSWORD}"; then
+  bashio::exit.nok "admin_password must not be empty"
+fi
+
+# Write env vars for s6 child processes
+printf "%s" "${SESSION_SECRET}"  > /var/run/s6/container_environment/SESSION_SECRET
+printf "%s" "${ADMIN_USERNAME}"  > /var/run/s6/container_environment/ADMIN_USERNAME
+printf "%s" "${ADMIN_PASSWORD}"  > /var/run/s6/container_environment/ADMIN_PASSWORD
+printf "%s" "${HTTP_PORT}"       > /var/run/s6/container_environment/HTTP_PORT
+printf "%s" "${HTTPS_PORT}"      > /var/run/s6/container_environment/HTTPS_PORT
+printf "%s" "file:/data/db/caddy-proxy-manager.db" > /var/run/s6/container_environment/DATABASE_URL
+printf "%s" "http://localhost:2019"                 > /var/run/s6/container_environment/CADDY_API_URL
+
+# BASE_URL: use ingress URL if available, otherwise localhost
+if bashio::var.has_value "$(bashio::addon.ingress_url 2>/dev/null)"; then
+  INGRESS_URL=$(bashio::addon.ingress_url)
+  printf "%s" "${INGRESS_URL}" > /var/run/s6/container_environment/BASE_URL
+else
+  printf "%s" "http://localhost:3000" > /var/run/s6/container_environment/BASE_URL
+fi
+
+bashio::log.info "Configuration loaded."
