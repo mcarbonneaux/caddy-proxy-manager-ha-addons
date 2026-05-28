@@ -54,9 +54,11 @@ The Caddy binary is added on top via a multi-stage Dockerfile:
 
 ```dockerfile
 ARG UPSTREAM_VERSION
+FROM caddy:latest AS caddy-bin
+
 FROM ghcr.io/fuomag9/caddy-proxy-manager:${UPSTREAM_VERSION}
 
-COPY --from=caddy:latest /usr/bin/caddy /usr/bin/caddy
+COPY --from=caddy-bin /usr/bin/caddy /usr/bin/caddy
 COPY rootfs/ /
 
 CMD ["/init"]
