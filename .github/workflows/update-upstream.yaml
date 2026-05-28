@@ -1,0 +1,50 @@
+name: Check Upstream Update
+
+on:
+  schedule:
+    - cron: "0 8 * * 1"  # Every Monday at 08:00 UTC
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get latest upstream release
+        id: upstream
+        run: |
+          LATEST=$(curl -s https://api.github.com/repos/fuomag9/caddy-proxy-manager/releases/latest \
+            | jq -r '.tag_name' | sed 's/^v//')
+          echo "LATEST=${LATEST}" >> $GITHUB_OUTPUT
+
+      - name: Get current UPSTREAM_VERSION in workflow
+        id: current
+        run: |
+          CURRENT=$(grep 'UPSTREAM_VERSION:' .github/workflows/build.yaml | head -1 | awk '{print $2}' | tr -d '"')
+          echo "CURRENT=${CURRENT}" >> $GITHUB_OUTPUT
+
+      - name: Open PR if update available
+        if: steps.upstream.outputs.LATEST != steps.current.outputs.CURRENT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LATEST: ${{ steps.upstream.outputs.LATEST }}
+          CURRENT: ${{ steps.current.outputs.CURRENT }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          BRANCH="upstream-update-${LATEST}"
+          git checkout -b "${BRANCH}"
+          sed -i "s/UPSTREAM_VERSION: \"${CURRENT}\"/UPSTREAM_VERSION: \"${LATEST}\"/" .github/workflows/build.yaml
+          git add .github/workflows/build.yaml
+          git commit -m "chore: bump upstream caddy-proxy-manager to v${LATEST}"
+          git push origin "${BRANCH}"
+          gh pr create \
+            --title "chore: bump upstream caddy-proxy-manager to v${LATEST}" \
+            --body "Automated PR: upstream caddy-proxy-manager released v${LATEST} (was v${CURRENT})." \
+            --base main \
+            --head "${BRANCH}"
