@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bashio
+
+bashio::log.info "Starting caddy-proxy-manager..."
+
+# The upstream image entrypoint is node /app/server.js (Next.js standalone output)
+# Verify with: docker inspect ghcr.io/fuomag9/caddy-proxy-manager:1.4 --format '{{json .Config.Cmd}}'
+cd /app
+exec node server.js 2>&1
