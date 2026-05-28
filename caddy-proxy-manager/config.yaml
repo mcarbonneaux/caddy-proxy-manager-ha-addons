@@ -1,0 +1,45 @@
+name: Caddy Proxy Manager
+version: "1.4-ha.1"
+slug: caddy_proxy_manager
+description: Caddy reverse proxy managed by caddy-proxy-manager web UI
+url: https://github.com/mcarbonneaux/caddy-proxy-manager-ha-addons
+arch:
+  - amd64
+  - aarch64
+  - armv7
+  - armhf
+  - i386
+
+host_network: true
+
+ports:
+  80/tcp: 80
+  443/tcp: 443
+
+ports_description:
+  80/tcp: HTTP
+  443/tcp: HTTPS
+
+ingress: true
+ingress_port: 3000
+panel_icon: mdi:shield-check
+panel_title: Caddy Proxy Manager
+
+options:
+  session_secret: ""
+  admin_username: admin
+  admin_password: ""
+  http_port: 80
+  https_port: 443
+
+schema:
+  session_secret: str
+  admin_username: str
+  admin_password: str
+  http_port: int
+  https_port: int
+
+map:
+  - data:rw
+
+image: ghcr.io/mcarbonneaux/caddy-proxy-manager-ha:{arch}-{version}
