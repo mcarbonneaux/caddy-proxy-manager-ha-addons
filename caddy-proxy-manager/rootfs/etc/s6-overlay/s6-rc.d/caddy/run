@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bashio
+
+bashio::log.info "Starting Caddy..."
+if [ -f /data/config/Caddyfile ]; then
+  exec /usr/bin/caddy run --config /data/config/Caddyfile --adapter caddyfile 2>&1
+else
+  exec /usr/bin/caddy run 2>&1
+fi
