@@ -50,6 +50,21 @@ Data is persisted in Home Assistant's `/data` directory:
 *   `/data/certs/`: Certificates managed by Caddy.
 *   `/data/config/`: Caddy configuration.
 
+## Development & Build
+
+The build process is automated using GitHub Actions. To trigger a new build and release:
+
+1.  **Update the upstream version** (if necessary) in `.github/workflows/build.yaml`.
+2.  **Create and push a new tag** following the `v*.*-ha.*` format. For example:
+    ```bash
+    git tag v1.4-ha.1
+    git push origin v1.4-ha.1
+    ```
+3.  The GitHub Action will:
+    *   Build multi-arch images (`amd64`, `aarch64`, `armv7`, `armhf`, `i386`).
+    *   Push the images to **GitHub Container Registry (GHCR)**.
+    *   Automatically update the `version` in `caddy-proxy-manager/config.yaml` and image references in `caddy-proxy-manager/build.yaml`.
+
 ## Acknowledgments
 
 This project is built upon the excellent work of [fuomag9](https://github.com/fuomag9) on Caddy Proxy Manager.
