@@ -58,6 +58,7 @@ jobs:
           push: true
           build-args: |
             UPSTREAM_VERSION=${{ env.UPSTREAM_VERSION }}
+            BUILD_ARCH=${{ matrix.arch }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.arch }}:${{ steps.version.outputs.VERSION }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.arch }}:latest
