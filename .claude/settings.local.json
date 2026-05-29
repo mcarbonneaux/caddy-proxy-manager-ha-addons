@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "WebFetch(domain:developers.home-assistant.io)",
+      "WebSearch",
+      "Bash(git -C /c/Users/u038472/Nextcloud/SFR/source/IdeaProjects/caddy-proxy-manager-ha-addons status)",
+      "Bash(git update-index *)"
+    ]
+  }
+}

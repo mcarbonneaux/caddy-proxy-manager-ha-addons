@@ -24,6 +24,7 @@ printf "%s" "${HTTP_PORT}"       > /var/run/s6/container_environment/HTTP_PORT
 printf "%s" "${HTTPS_PORT}"      > /var/run/s6/container_environment/HTTPS_PORT
 printf "%s" "file:/data/db/caddy-proxy-manager.db" > /var/run/s6/container_environment/DATABASE_URL
 printf "%s" "http://localhost:2019"                 > /var/run/s6/container_environment/CADDY_API_URL
+printf "%s" "3000"                                  > /var/run/s6/container_environment/PORT
 
 # BASE_URL: use ingress URL if available, otherwise localhost
 if bashio::var.has_value "$(bashio::addon.ingress_url 2>/dev/null)"; then

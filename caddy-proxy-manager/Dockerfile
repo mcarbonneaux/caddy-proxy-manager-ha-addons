@@ -1,7 +1,7 @@
 ARG BUILD_FROM
 ARG UPSTREAM_VERSION=1.4
 
-FROM caddy:latest AS caddy-bin
+FROM caddy:alpine AS caddy-bin
 
 FROM ghcr.io/fuomag9/caddy-proxy-manager:${UPSTREAM_VERSION}
 
