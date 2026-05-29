@@ -32,15 +32,14 @@ RUN apk add --no-cache \
     jq \
     curl
 
-# Copy init scripts and services
+# Copy scripts and services
 COPY rootfs/ /
 
 # Ensure scripts are executable
-RUN chmod -R +x /etc/cont-init.d/ \
-    && chmod -R +x /etc/services.d/
+RUN chmod -R +x /etc/s6-overlay/s6-rc.d/
 
 # Expose version
-RUN echo "1.4-ha.20" > /VERSION
+RUN echo "1.4-ha.21" > /VERSION
 
 # Build arguments for Labels
 ARG BUILD_DATE
