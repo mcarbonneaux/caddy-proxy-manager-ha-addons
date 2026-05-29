@@ -1,9 +1,8 @@
-ARG BUILD_FROM
-ARG UPSTREAM_VERSION=1.4
+ARG UPSTREAM_VERSION=latest
 
 FROM caddy:alpine AS caddy-bin
 
-FROM ghcr.io/fuomag9/caddy-proxy-manager:${UPSTREAM_VERSION}
+FROM ghcr.io/fuomag9/caddy-proxy-manager-web:${UPSTREAM_VERSION}
 
 # Copy Caddy binary
 COPY --from=caddy-bin /usr/bin/caddy /usr/bin/caddy

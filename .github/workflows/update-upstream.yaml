@@ -20,6 +20,10 @@ jobs:
         run: |
           LATEST=$(curl -s https://api.github.com/repos/fuomag9/caddy-proxy-manager/releases/latest \
             | jq -r '.tag_name' | sed 's/^v//')
+          if [ "$LATEST" = "null" ] || [ -z "$LATEST" ]; then
+            echo "Failed to get latest release, using latest"
+            LATEST="latest"
+          fi
           echo "LATEST=${LATEST}" >> $GITHUB_OUTPUT
 
       - name: Get current UPSTREAM_VERSION in workflow

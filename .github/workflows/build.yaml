@@ -6,7 +6,7 @@ on:
       - "v*.*-ha.*"
 
 env:
-  UPSTREAM_VERSION: "1.4"
+  UPSTREAM_VERSION: "latest"
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository_owner }}/caddy-proxy-manager-ha
 
