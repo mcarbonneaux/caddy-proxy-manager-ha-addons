@@ -55,8 +55,8 @@ jobs:
           build-args: |
             UPSTREAM_VERSION=${{ env.UPSTREAM_VERSION }}
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.arch }}-${{ steps.version.outputs.VERSION }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.arch }}-latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.arch }}:${{ steps.version.outputs.VERSION }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.arch }}:latest
 
   update-config:
     name: Update config.yaml version
@@ -83,7 +83,7 @@ jobs:
           REGISTRY=${{ env.REGISTRY }}
           IMAGE=${{ env.IMAGE_NAME }}
           for arch in amd64 aarch64; do
-            sed -i "s|${arch}: .*|${arch}: ${REGISTRY}/${IMAGE}:${arch}-${VERSION}|" caddy-proxy-manager/build.yaml
+            sed -i "s|${arch}: .*|${arch}: ${REGISTRY}/${IMAGE}/${arch}:${VERSION}|" caddy-proxy-manager/build.yaml
           done
 
       - name: Commit and push updated config

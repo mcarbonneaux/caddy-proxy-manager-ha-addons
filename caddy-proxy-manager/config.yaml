@@ -39,4 +39,4 @@ schema:
 map:
   - data:rw
 
-image: ghcr.io/mcarbonneaux/caddy-proxy-manager-ha:{arch}-{version}
+image: ghcr.io/mcarbonneaux/caddy-proxy-manager-ha/{arch}

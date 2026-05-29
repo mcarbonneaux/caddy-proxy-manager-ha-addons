@@ -57,13 +57,20 @@ The build process is automated using GitHub Actions. To trigger a new build and 
 1.  **Update the upstream version** (if necessary) in `.github/workflows/build.yaml`.
 2.  **Create and push a new tag** following the `v*.*-ha.*` format. For example:
     ```bash
-    git tag v1.4-ha.1
-    git push origin v1.4-ha.1
+    git tag v1.4-ha.2
+    git push origin master --tags
     ```
 3.  The GitHub Action will:
     *   Build multi-arch images (`amd64`, `aarch64`).
     *   Push the images to **GitHub Container Registry (GHCR)**.
     *   Automatically update the `version` in `caddy-proxy-manager/config.yaml` and image references in `caddy-proxy-manager/build.yaml`.
+
+### Troubleshooting
+
+If the add-on does not appear in the store after adding the repository:
+- Go to the **Add-on Store**, click the three dots in the top right, and select **Check for updates**.
+- Check the **Supervisor logs** (Settings > System > Logs > Supervisor).
+- Note: This add-on only supports `amd64` and `aarch64`. It will be hidden on unsupported architectures like `armv7`.
 
 ## Acknowledgments
 
