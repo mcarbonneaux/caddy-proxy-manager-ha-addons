@@ -1,3 +1,8 @@
-#!/usr/bin/env bashio
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Home Assistant Add-on: Caddy Proxy Manager
+# Service: Caddy
+# ==============================================================================
 bashio::log.info "Starting Caddy..."
 exec /usr/bin/caddy run --config /data/config/caddy.json --adapter json 2>&1

@@ -1,4 +1,9 @@
-#!/usr/bin/env bashio
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Home Assistant Add-on: Caddy Proxy Manager
+# Initializing /data directories
+# ==============================================================================
 bashio::log.info "Initializing /data directories..."
 mkdir -p /data/db /data/certs /data/config /data/logs
 bashio::log.info "Done."

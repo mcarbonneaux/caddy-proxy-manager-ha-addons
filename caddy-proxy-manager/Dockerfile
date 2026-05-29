@@ -1,21 +1,18 @@
-# Use official Home Assistant base image
+# Use community base image like Franck (Nginx Proxy Manager)
 ARG BUILD_ARCH=amd64
-FROM ghcr.io/home-assistant/${BUILD_ARCH}-base:3.21
+FROM ghcr.io/hassio-addons/base:18.2.0
+
+# Build stage to get Caddy
+FROM caddy:alpine AS caddy-bin
+
+# Final stage
+FROM ghcr.io/hassio-addons/base:18.2.0
 
 # Re-declare BUILD_ARCH
 ARG BUILD_ARCH
 
 # Set shell
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
-# Build stage to get Caddy
-FROM caddy:alpine AS caddy-bin
-
-# Final stage
-FROM ghcr.io/home-assistant/${BUILD_ARCH}-base:3.21
-
-# Re-declare BUILD_ARCH
-ARG BUILD_ARCH
 
 # Copy Caddy binary
 COPY --from=caddy-bin /usr/bin/caddy /usr/bin/caddy
@@ -27,10 +24,7 @@ COPY --from=ghcr.io/fuomag9/caddy-proxy-manager-web:latest /app /app
 RUN apk add --no-cache \
     nodejs \
     npm \
-    sqlite \
-    openssl \
-    jq \
-    curl
+    sqlite
 
 # Copy scripts and services
 COPY rootfs/ /
@@ -39,7 +33,7 @@ COPY rootfs/ /
 RUN chmod -R +x /etc/s6-overlay/s6-rc.d/
 
 # Expose version
-RUN echo "1.4-ha.21" > /VERSION
+RUN echo "1.4-ha.22" > /VERSION
 
 # Build arguments for Labels
 ARG BUILD_DATE
