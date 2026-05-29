@@ -3,7 +3,8 @@ name: Build & Push
 on:
   push:
     tags:
-      - "v*.*-ha.*"
+      - "v*"
+  workflow_dispatch:
 
 env:
   UPSTREAM_VERSION: "latest"
