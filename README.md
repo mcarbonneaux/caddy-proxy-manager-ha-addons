@@ -1,6 +1,6 @@
 # Caddy Proxy Manager - Home Assistant Add-ons
 
-This repository contains a Home Assistant add-on that runs **Caddy** and **Caddy Proxy Manager (CPM)** in a single container.
+This repository contains a Home Assistant add-on that runs **Caddy** and [**Caddy Proxy Manager (CPM)**](https://github.com/fuomag9/caddy-proxy-manager) in a single container.
 
 ## About the Project
 
