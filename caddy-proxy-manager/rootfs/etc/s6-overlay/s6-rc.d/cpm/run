@@ -16,6 +16,7 @@ fi
 # Ensure SESSION_SECRET is also in .env file for Next.js as a fallback
 # though process.env should be enough, some Next.js builds are picky.
 # We write ALL environment variables to .env for maximum compatibility.
+# In standalone mode, Next.js looks for .env in the root of the app.
 {
     echo "SESSION_SECRET=$SESSION_SECRET"
     echo "ADMIN_USERNAME=$ADMIN_USERNAME"
@@ -27,5 +28,30 @@ fi
     echo "NODE_ENV=production"
 } > /app/.env
 
+# Also create it in .env.local just in case
+cp /app/.env /app/.env.local
+
+bashio::log.info "Environment variables prepared. Starting node server.js..."
+
+# Debug logs (masking secrets)
+bashio::log.debug "DEBUG: NODE_ENV=$NODE_ENV"
+bashio::log.debug "DEBUG: PORT=$PORT"
+bashio::log.debug "DEBUG: DATABASE_URL=$DATABASE_URL"
+bashio::log.debug "DEBUG: SESSION_SECRET length=${#SESSION_SECRET}"
+if [ -n "$SESSION_SECRET" ]; then
+    bashio::log.debug "DEBUG: SESSION_SECRET starts with: ${SESSION_SECRET:0:4}..."
+else
+    bashio::log.err "DEBUG: SESSION_SECRET IS EMPTY!"
+fi
+
 cd /app
-exec node server.js 2>&1
+# Use env to explicitly pass all current exported variables to the node process
+exec env SESSION_SECRET="$SESSION_SECRET" \
+         ADMIN_USERNAME="$ADMIN_USERNAME" \
+         ADMIN_PASSWORD="$ADMIN_PASSWORD" \
+         DATABASE_URL="$DATABASE_URL" \
+         CADDY_API_URL="$CADDY_API_URL" \
+         PORT="$PORT" \
+         BASE_URL="$BASE_URL" \
+         NODE_ENV="production" \
+         node server.js 2>&1
