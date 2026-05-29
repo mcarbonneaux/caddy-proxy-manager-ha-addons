@@ -1,5 +1,5 @@
 build_from:
-  amd64: ghcr.io/mcarbonneaux/caddy-proxy-manager-ha/amd64:1.4-ha.19
-  aarch64: ghcr.io/mcarbonneaux/caddy-proxy-manager-ha/aarch64:1.4-ha.19
+  amd64: ghcr.io/mcarbonneaux/caddy-proxy-manager-ha/amd64:1.4-ha.20
+  aarch64: ghcr.io/mcarbonneaux/caddy-proxy-manager-ha/aarch64:1.4-ha.20
 
 squash: false

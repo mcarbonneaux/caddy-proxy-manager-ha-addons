@@ -1,9 +1,9 @@
-#!/usr/bin/with-contenv bashio
+#!/usr/bin/env bashio
 # ==============================================================================
 # Home Assistant Add-on: Caddy Proxy Manager
 # Service: Caddy Proxy Manager (Next.js)
 # ==============================================================================
-bashio::log.info "--- CPM SERVICE STARTUP VERSION 1.4-ha.19 ---"
+bashio::log.info "--- CPM SERVICE STARTUP VERSION 1.4-ha.20 ---"
 bashio::log.info "Starting caddy-proxy-manager..."
 
 # Load environment variables manually
