@@ -3,14 +3,29 @@
 bashio::log.info "Starting caddy-proxy-manager..."
 
 # Load environment variables manually to ensure Next.js sees them
-# s6-overlay stores them in /var/run/s6/container_environment/
-for var in /var/run/s6/container_environment/*; do
-    export "$(basename "$var")=$(cat "$var")"
-done
+# s6-overlay stores them in /run/s6/container_environment/ or /var/run/s6/container_environment/
+S6_ENV_DIR="/var/run/s6/container_environment"
+[ ! -d "$S6_ENV_DIR" ] && S6_ENV_DIR="/run/s6/container_environment"
+
+if [ -d "$S6_ENV_DIR" ]; then
+    for var in "$S6_ENV_DIR"/*; do
+        export "$(basename "$var")=$(cat "$var")"
+    done
+fi
 
 # Ensure SESSION_SECRET is also in .env file for Next.js as a fallback
 # though process.env should be enough, some Next.js builds are picky.
-echo "SESSION_SECRET=$SESSION_SECRET" > /app/.env
+# We write ALL environment variables to .env for maximum compatibility.
+{
+    echo "SESSION_SECRET=$SESSION_SECRET"
+    echo "ADMIN_USERNAME=$ADMIN_USERNAME"
+    echo "ADMIN_PASSWORD=$ADMIN_PASSWORD"
+    echo "DATABASE_URL=$DATABASE_URL"
+    echo "CADDY_API_URL=$CADDY_API_URL"
+    echo "PORT=$PORT"
+    echo "BASE_URL=$BASE_URL"
+    echo "NODE_ENV=production"
+} > /app/.env
 
 cd /app
 exec node server.js 2>&1

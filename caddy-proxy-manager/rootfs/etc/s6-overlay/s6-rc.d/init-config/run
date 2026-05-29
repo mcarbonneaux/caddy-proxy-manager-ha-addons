@@ -37,15 +37,23 @@ export DATABASE_URL="file:/data/db/caddy-proxy-manager.db"
 export CADDY_API_URL="http://localhost:2019"
 export PORT="3000"
 
-printf "%s" "${SESSION_SECRET}"  > /var/run/s6/container_environment/SESSION_SECRET
-printf "%s" "${ADMIN_USERNAME}"  > /var/run/s6/container_environment/ADMIN_USERNAME
-printf "%s" "${ADMIN_PASSWORD}"  > /var/run/s6/container_environment/ADMIN_PASSWORD
-printf "%s" "${HTTP_PORT}"       > /var/run/s6/container_environment/HTTP_PORT
-printf "%s" "${HTTPS_PORT}"      > /var/run/s6/container_environment/HTTPS_PORT
-printf "%s" "${DATABASE_URL}"    > /var/run/s6/container_environment/DATABASE_URL
-printf "%s" "${CADDY_API_URL}"   > /var/run/s6/container_environment/CADDY_API_URL
-printf "%s" "${PORT}"            > /var/run/s6/container_environment/PORT
-printf "%s" "production"         > /var/run/s6/container_environment/NODE_ENV
+# Find s6 environment directory
+S6_ENV_DIR="/var/run/s6/container_environment"
+[ ! -d "$S6_ENV_DIR" ] && S6_ENV_DIR="/run/s6/container_environment"
+
+if [ -d "$S6_ENV_DIR" ]; then
+    printf "%s" "${SESSION_SECRET}"  > "$S6_ENV_DIR/SESSION_SECRET"
+    printf "%s" "${ADMIN_USERNAME}"  > "$S6_ENV_DIR/ADMIN_USERNAME"
+    printf "%s" "${ADMIN_PASSWORD}"  > "$S6_ENV_DIR/ADMIN_PASSWORD"
+    printf "%s" "${HTTP_PORT}"       > "$S6_ENV_DIR/HTTP_PORT"
+    printf "%s" "${HTTPS_PORT}"      > "$S6_ENV_DIR/HTTPS_PORT"
+    printf "%s" "${DATABASE_URL}"    > "$S6_ENV_DIR/DATABASE_URL"
+    printf "%s" "${CADDY_API_URL}"   > "$S6_ENV_DIR/CADDY_API_URL"
+    printf "%s" "${PORT}"            > "$S6_ENV_DIR/PORT"
+    printf "%s" "production"         > "$S6_ENV_DIR/NODE_ENV"
+else
+    bashio::log.warn "Could not find s6 environment directory!"
+fi
 
 # BASE_URL: use ingress URL if available, otherwise localhost
 if bashio::var.has_value "$(bashio::addon.ingress_url 2>/dev/null)"; then
@@ -54,7 +62,7 @@ else
   BASE_URL="http://localhost:3000"
 fi
 export BASE_URL
-printf "%s" "${BASE_URL}" > /var/run/s6/container_environment/BASE_URL
+[ -d "$S6_ENV_DIR" ] && printf "%s" "${BASE_URL}" > "$S6_ENV_DIR/BASE_URL"
 
 # Next.js specific: sometimes it needs environment variables in a .env file or specifically formatted
 # though server.js usually picks up process.env.
