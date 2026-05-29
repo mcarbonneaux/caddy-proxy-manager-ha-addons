@@ -33,13 +33,13 @@ cp /app/.env /app/.env.local
 
 bashio::log.info "Environment variables prepared. Starting node server.js..."
 
-# Debug logs (masking secrets)
-bashio::log.debug "DEBUG: NODE_ENV=$NODE_ENV"
-bashio::log.debug "DEBUG: PORT=$PORT"
-bashio::log.debug "DEBUG: DATABASE_URL=$DATABASE_URL"
-bashio::log.debug "DEBUG: SESSION_SECRET length=${#SESSION_SECRET}"
+# Debug logs (FORCE INFO to be visible)
+bashio::log.info "DEBUG: NODE_ENV=$NODE_ENV"
+bashio::log.info "DEBUG: PORT=$PORT"
+bashio::log.info "DEBUG: DATABASE_URL=$DATABASE_URL"
+bashio::log.info "DEBUG: SESSION_SECRET length=${#SESSION_SECRET}"
 if [ -n "$SESSION_SECRET" ]; then
-    bashio::log.debug "DEBUG: SESSION_SECRET starts with: ${SESSION_SECRET:0:4}..."
+    bashio::log.info "DEBUG: SESSION_SECRET starts with: ${SESSION_SECRET:0:4}..."
 else
     bashio::log.err "DEBUG: SESSION_SECRET IS EMPTY!"
 fi
