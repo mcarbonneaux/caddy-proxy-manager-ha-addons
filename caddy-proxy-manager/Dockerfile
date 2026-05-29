@@ -18,6 +18,7 @@ COPY --from=ghcr.io/fuomag9/caddy-proxy-manager-web:latest /app /app
 RUN apk add --no-cache \
     nodejs \
     npm \
+    bash \
     openssl \
     jq \
     curl \
@@ -34,7 +35,7 @@ RUN chmod a+x /etc/s6-overlay/s6-rc.d/init-data/run \
     && chmod a+x /etc/cont-init.d/00-banner.sh
 
 # Expose version
-RUN echo "1.4-ha.16" > /VERSION
+RUN echo "1.4-ha.17" > /VERSION
 
-ENTRYPOINT ["/init"]
-CMD []
+# Set S6 verbosity for debugging
+ENV S6_VERBOSITY=2
