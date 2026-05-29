@@ -16,6 +16,12 @@ USER root
 RUN chmod a+x /etc/s6-overlay/s6-rc.d/init-data/run \
     && chmod a+x /etc/s6-overlay/s6-rc.d/init-config/run \
     && chmod a+x /etc/s6-overlay/s6-rc.d/caddy/run \
-    && chmod a+x /etc/s6-overlay/s6-rc.d/cpm/run
+    && chmod a+x /etc/s6-overlay/s6-rc.d/cpm/run \
+    && chmod a+x /etc/cont-init.d/00-banner.sh
 
-CMD ["/init"]
+# Create a version file in the image
+RUN echo "1.4-ha.11" > /VERSION
+
+# Force removal of upstream entrypoint/cmd
+ENTRYPOINT ["/init"]
+CMD []

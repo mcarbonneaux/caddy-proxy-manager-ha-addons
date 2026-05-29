@@ -1,5 +1,6 @@
 #!/usr/bin/with-contenv bashio
 
+echo "--- CPM SERVICE STARTUP VERSION 1.4-ha.10 ---"
 bashio::log.info "Starting caddy-proxy-manager..."
 
 # Load environment variables manually to ensure Next.js sees them
