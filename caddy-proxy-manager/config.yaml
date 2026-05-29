@@ -1,5 +1,5 @@
 name: Caddy Proxy Manager
-version: "1.4-ha.22"
+version: "1.4-ha.24"
 slug: caddy_proxy_manager
 description: >
   Caddy reverse proxy managed by caddy-proxy-manager web UI.
@@ -25,6 +25,7 @@ ingress: true
 ingress_port: 3000
 panel_icon: mdi:shield-check
 panel_title: Caddy Proxy Manager
+init: false
 
 options:
   session_secret: ""

@@ -56,9 +56,9 @@ Data is persisted in Home Assistant's `/data` directory:
 The build process is automated using GitHub Actions. To trigger a new build and release:
 
 1.  **Update the upstream version** (if necessary) in `.github/workflows/build.yaml`.
-2.  **Create and push a new tag** (e.g., `1.4-ha.22`). For example:
+2.  **Create and push a new tag** (e.g., `1.4-ha.24`). For example:
     ```bash
-    git tag 1.4-ha.22
+    git tag 1.4-ha.24
     git push origin master --tags
     ```
 3.  The GitHub Action will:
