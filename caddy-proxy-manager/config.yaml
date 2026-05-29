@@ -1,5 +1,5 @@
 name: Caddy Proxy Manager
-version: "1.4-ha.14"
+version: "1.4-ha.15"
 slug: caddy_proxy_manager
 description: >
   Caddy reverse proxy managed by caddy-proxy-manager web UI.

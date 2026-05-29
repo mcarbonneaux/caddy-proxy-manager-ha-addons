@@ -1,4 +1,4 @@
 #!/usr/bin/with-contenv bashio
 echo "=============================================="
-echo "  CADDY PROXY MANAGER HA ADD-ON v1.4-ha.14"
+echo "  CADDY PROXY MANAGER HA ADD-ON v1.4-ha.15"
 echo "=============================================="
