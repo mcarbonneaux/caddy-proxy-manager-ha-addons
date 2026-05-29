@@ -58,7 +58,7 @@ The build process is automated using GitHub Actions. To trigger a new build and 
 1.  **Update the upstream version** (if necessary) in `.github/workflows/build.yaml`.
 2.  **Create and push a new tag** following the `v*.*-ha.*` format. For example:
     ```bash
-    git tag v1.4-ha.2
+    git tag v1.4-ha.3
     git push origin master --tags
     ```
 3.  The GitHub Action will:

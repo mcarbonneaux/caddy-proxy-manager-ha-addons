@@ -8,5 +8,9 @@ for var in /var/run/s6/container_environment/*; do
     export "$(basename "$var")=$(cat "$var")"
 done
 
+# Ensure SESSION_SECRET is also in .env file for Next.js as a fallback
+# though process.env should be enough, some Next.js builds are picky.
+echo "SESSION_SECRET=$SESSION_SECRET" > /app/.env
+
 cd /app
 exec node server.js 2>&1

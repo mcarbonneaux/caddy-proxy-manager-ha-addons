@@ -45,6 +45,7 @@ printf "%s" "${HTTPS_PORT}"      > /var/run/s6/container_environment/HTTPS_PORT
 printf "%s" "${DATABASE_URL}"    > /var/run/s6/container_environment/DATABASE_URL
 printf "%s" "${CADDY_API_URL}"   > /var/run/s6/container_environment/CADDY_API_URL
 printf "%s" "${PORT}"            > /var/run/s6/container_environment/PORT
+printf "%s" "production"         > /var/run/s6/container_environment/NODE_ENV
 
 # BASE_URL: use ingress URL if available, otherwise localhost
 if bashio::var.has_value "$(bashio::addon.ingress_url 2>/dev/null)"; then
@@ -59,5 +60,9 @@ printf "%s" "${BASE_URL}" > /var/run/s6/container_environment/BASE_URL
 # though server.js usually picks up process.env.
 # We'll stick to s6 environment for now but ensure SESSION_SECRET is definitely there.
 
+# Log values (masking secrets)
 bashio::log.info "Configuration loaded."
 bashio::log.info "SESSION_SECRET length: ${#SESSION_SECRET}"
+bashio::log.info "ADMIN_USERNAME: ${ADMIN_USERNAME}"
+bashio::log.info "PORT: ${PORT}"
+bashio::log.info "DATABASE_URL: ${DATABASE_URL}"
