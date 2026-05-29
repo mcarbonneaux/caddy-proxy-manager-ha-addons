@@ -7,10 +7,11 @@ This repository contains a Home Assistant add-on that runs **Caddy** and [**Cadd
 This add-on combines the power of the **Caddy** web server/reverse proxy with the user-friendly management interface of **Caddy Proxy Manager**. It allows you to easily manage your redirection hosts, SSL certificates (automatically managed by Caddy), and reverse proxy rules directly from the Home Assistant interface.
 
 ### Key Features
-
-*   **Caddy & CPM**: Both processes run in parallel, supervised by `s6-overlay`.
-*   **Automatic SSL Certificates**: Benefit from Caddy's native and automatic certificate management.
-*   **Ingress Access**: Access the management interface directly via the Home Assistant sidebar without unnecessarily exposing additional ports.
+ 
+ *   **Caddy & CPM**: Both processes run in parallel, supervised by `s6-overlay`.
+ *   **Automatic SSL Certificates**: Benefit from Caddy's native and automatic certificate management.
+ *   **Add-on Icon**: Features a custom Caddy-themed icon in the Home Assistant interface.
+ *   **Ingress Access**: Access the management interface directly via the Home Assistant sidebar without unnecessarily exposing additional ports.
 *   **Host Network Mode**: Uses the host network (`host_network: true`) to preserve real client IP addresses (essential for geo-blocking and traffic analysis).
 
 ## Installation
@@ -27,7 +28,7 @@ To install this add-on in your Home Assistant instance:
 
 Before starting the add-on, you must configure the following options:
 
-*   `session_secret`: A random string (min. 32 characters) used to secure interface sessions.
+*   `session_secret`: A random string (min. 32 characters) used to secure interface sessions. If left empty, one will be automatically generated and persisted in the add-on data.
 *   `admin_username`: The username for CPM administration (default: `admin`).
 *   `admin_password`: The password for administration (it is strongly recommended to use a strong password).
 *   `http_port`: Port used by Caddy for HTTP traffic (default: `80`).
