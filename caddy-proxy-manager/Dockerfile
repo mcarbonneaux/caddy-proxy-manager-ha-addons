@@ -33,7 +33,7 @@ COPY rootfs/ /
 RUN chmod -R +x /etc/s6-overlay/s6-rc.d/
 
 # Expose version
-RUN echo "1.4-ha.24" > /VERSION
+RUN echo "1.4-ha.25" > /VERSION
 
 # Build arguments for Labels
 ARG BUILD_DATE
