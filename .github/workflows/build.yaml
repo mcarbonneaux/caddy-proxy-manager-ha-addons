@@ -21,12 +21,6 @@ jobs:
             platform: linux/amd64
           - arch: aarch64
             platform: linux/arm64
-          - arch: armv7
-            platform: linux/arm/v7
-          - arch: armhf
-            platform: linux/arm/v6
-          - arch: i386
-            platform: linux/386
 
     steps:
       - name: Checkout
@@ -84,7 +78,7 @@ jobs:
           VERSION=${{ steps.version.outputs.VERSION }}
           REGISTRY=${{ env.REGISTRY }}
           IMAGE=${{ env.IMAGE_NAME }}
-          for arch in amd64 aarch64 armv7 armhf i386; do
+          for arch in amd64 aarch64; do
             sed -i "s|${arch}: .*|${arch}: ${REGISTRY}/${IMAGE}:${arch}-${VERSION}|" caddy-proxy-manager/build.yaml
           done
 

@@ -61,7 +61,7 @@ The build process is automated using GitHub Actions. To trigger a new build and 
     git push origin v1.4-ha.1
     ```
 3.  The GitHub Action will:
-    *   Build multi-arch images (`amd64`, `aarch64`, `armv7`, `armhf`, `i386`).
+    *   Build multi-arch images (`amd64`, `aarch64`).
     *   Push the images to **GitHub Container Registry (GHCR)**.
     *   Automatically update the `version` in `caddy-proxy-manager/config.yaml` and image references in `caddy-proxy-manager/build.yaml`.
 

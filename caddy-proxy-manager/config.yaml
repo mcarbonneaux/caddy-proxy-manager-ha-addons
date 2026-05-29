@@ -6,9 +6,6 @@ url: https://github.com/mcarbonneaux/caddy-proxy-manager-ha-addons
 arch:
   - amd64
   - aarch64
-  - armv7
-  - armhf
-  - i386
 
 host_network: true
 

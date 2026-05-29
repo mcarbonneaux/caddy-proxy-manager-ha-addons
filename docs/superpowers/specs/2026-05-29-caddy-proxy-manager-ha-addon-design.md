@@ -68,13 +68,10 @@ CMD ["/init"]
 
 ## Supported Architectures
 
-All five HA architectures via `docker buildx` + QEMU:
+Two HA architectures via `docker buildx` + QEMU (limited by upstream image):
 
 - `amd64`
 - `aarch64`
-- `armv7`
-- `armhf`
-- `i386`
 
 ---
 
@@ -172,10 +169,10 @@ This distinguishes upstream CPM version from add-on-level fixes. The `version` f
 
 Defined as a variable in the GitHub Actions build workflow. Updated manually when bumping the upstream CPM version, then a new tag is pushed to trigger a build.
 
-### `build.yaml` workflow (triggered on `v*.*.*-ha.*` tag push)
+### `build.yaml` workflow (triggered on `v*.*-ha.*` tag push)
 
 1. Checkout repository
-2. Setup QEMU + `docker buildx` for 5-arch cross-compilation
+2. Setup QEMU + `docker buildx` for multi-arch cross-compilation
 3. Login to ghcr.io with `GITHUB_TOKEN`
 4. Build and push multi-arch image:
    - `ghcr.io/<owner>/caddy-proxy-manager-ha:<tag>`
