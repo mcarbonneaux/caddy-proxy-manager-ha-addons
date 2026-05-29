@@ -2,7 +2,11 @@
 
 bashio::log.info "Starting caddy-proxy-manager..."
 
-# The upstream image entrypoint is node /app/server.js (Next.js standalone output)
-# Verify with: docker inspect ghcr.io/fuomag9/caddy-proxy-manager:1.4 --format '{{json .Config.Cmd}}'
+# Load environment variables manually to ensure Next.js sees them
+# s6-overlay stores them in /var/run/s6/container_environment/
+for var in /var/run/s6/container_environment/*; do
+    export "$(basename "$var")=$(cat "$var")"
+done
+
 cd /app
 exec node server.js 2>&1

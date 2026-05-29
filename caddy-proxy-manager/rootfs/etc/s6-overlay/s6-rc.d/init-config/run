@@ -55,4 +55,9 @@ fi
 export BASE_URL
 printf "%s" "${BASE_URL}" > /var/run/s6/container_environment/BASE_URL
 
+# Next.js specific: sometimes it needs environment variables in a .env file or specifically formatted
+# though server.js usually picks up process.env.
+# We'll stick to s6 environment for now but ensure SESSION_SECRET is definitely there.
+
 bashio::log.info "Configuration loaded."
+bashio::log.info "SESSION_SECRET length: ${#SESSION_SECRET}"
