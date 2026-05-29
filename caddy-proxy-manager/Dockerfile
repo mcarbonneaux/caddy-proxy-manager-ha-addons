@@ -1,18 +1,18 @@
 # Use community base image like Franck (Nginx Proxy Manager)
 ARG BUILD_ARCH=amd64
-FROM ghcr.io/hassio-addons/base:17.2.1
-
-# Set shell
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+FROM ghcr.io/hassio-addons/base:18.2.0
 
 # Build stage to get Caddy
 FROM caddy:alpine AS caddy-bin
 
-# Return to main build
-FROM ghcr.io/hassio-addons/base:17.2.1
+# Final stage
+FROM ghcr.io/hassio-addons/base:18.2.0
 
 # Re-declare BUILD_ARCH
 ARG BUILD_ARCH
+
+# Set shell
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Copy Caddy binary
 COPY --from=caddy-bin /usr/bin/caddy /usr/bin/caddy
@@ -21,12 +21,10 @@ COPY --from=caddy-bin /usr/bin/caddy /usr/bin/caddy
 COPY --from=ghcr.io/fuomag9/caddy-proxy-manager-web:latest /app /app
 
 # Install NodeJS and additional requirements
+# openssl, jq, curl are already in the base image
 RUN apk add --no-cache \
     nodejs \
     npm \
-    openssl \
-    jq \
-    curl \
     sqlite
 
 # Copy init scripts and services
@@ -37,7 +35,7 @@ RUN chmod -R +x /etc/cont-init.d/ \
     && chmod -R +x /etc/services.d/
 
 # Expose version
-RUN echo "1.4-ha.18" > /VERSION
+RUN echo "1.4-ha.19" > /VERSION
 
 # S6 configuration (Community style)
 ENV S6_KEEP_ENV=1 \
