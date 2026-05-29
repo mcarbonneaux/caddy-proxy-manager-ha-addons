@@ -1,8 +1,17 @@
-#!/command/with-contenv bashio
+#!/usr/bin/env bashio
 # shellcheck shell=bash
 # ==============================================================================
 # Home Assistant Add-on: Caddy Proxy Manager
 # Service: Caddy
 # ==============================================================================
+# Load s6 environment
+S6_ENV_DIR="/run/s6/container_environment"
+[ ! -d "$S6_ENV_DIR" ] && S6_ENV_DIR="/var/run/s6/container_environment"
+if [ -d "$S6_ENV_DIR" ]; then
+    for var in "$S6_ENV_DIR"/*; do
+        export "$(basename "$var")=$(cat "$var")"
+    done
+fi
+
 bashio::log.info "Starting Caddy..."
 exec /usr/bin/caddy run --config /data/config/caddy.json --adapter json 2>&1

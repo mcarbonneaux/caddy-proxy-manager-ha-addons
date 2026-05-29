@@ -1,10 +1,10 @@
-#!/command/with-contenv bashio
+#!/usr/bin/env bashio
 # shellcheck shell=bash
 # ==============================================================================
 # Home Assistant Add-on: Caddy Proxy Manager
 # Loading configuration and preparing environment
 # ==============================================================================
-bashio::log.info "--- ADD-ON CONFIGURATION VERSION 1.4-ha.25 ---"
+bashio::log.info "--- ADD-ON CONFIGURATION VERSION 1.4-ha.27 ---"
 bashio::log.info "Reading add-on options..."
 
 SESSION_SECRET=$(bashio::config 'session_secret')

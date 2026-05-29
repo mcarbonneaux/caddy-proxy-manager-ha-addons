@@ -29,11 +29,22 @@ RUN apk add --no-cache \
 # Copy scripts and services
 COPY rootfs/ /
 
+# Fix s6-rc.d structure and ensure Unix line endings (No BOM)
+RUN mkdir -p /etc/s6-overlay/s6-rc.d/init-data /etc/s6-overlay/s6-rc.d/init-config /etc/s6-overlay/s6-rc.d/caddy /etc/s6-overlay/s6-rc.d/cpm /etc/s6-overlay/s6-rc.d/user/contents.d \
+    && printf "oneshot" > /etc/s6-overlay/s6-rc.d/init-data/type \
+    && printf "oneshot" > /etc/s6-overlay/s6-rc.d/init-config/type \
+    && printf "longrun" > /etc/s6-overlay/s6-rc.d/caddy/type \
+    && printf "longrun" > /etc/s6-overlay/s6-rc.d/cpm/type \
+    && touch /etc/s6-overlay/s6-rc.d/user/contents.d/init-data \
+    && touch /etc/s6-overlay/s6-rc.d/user/contents.d/init-config \
+    && touch /etc/s6-overlay/s6-rc.d/user/contents.d/caddy \
+    && touch /etc/s6-overlay/s6-rc.d/user/contents.d/cpm
+
 # Ensure scripts are executable
 RUN chmod -R +x /etc/s6-overlay/s6-rc.d/
 
 # Expose version
-RUN echo "1.4-ha.25" > /VERSION
+RUN echo "1.4-ha.27" > /VERSION
 
 # Build arguments for Labels
 ARG BUILD_DATE
