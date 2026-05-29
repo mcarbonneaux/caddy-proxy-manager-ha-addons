@@ -10,6 +10,8 @@ COPY --from=caddy-bin /usr/bin/caddy /usr/bin/caddy
 # Copy s6-overlay service definitions and init scripts
 COPY rootfs/ /
 
+USER root
+
 # Ensure scripts are executable
 RUN chmod a+x /etc/s6-overlay/s6-rc.d/init-data/run \
     && chmod a+x /etc/s6-overlay/s6-rc.d/init-config/run \
