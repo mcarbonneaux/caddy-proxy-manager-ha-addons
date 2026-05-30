@@ -38,7 +38,7 @@ DATABASE_URL=file:/data/db/caddy-proxy-manager.db
 CADDY_API_URL=http://localhost:2019
 PORT=3000
 NODE_ENV=production
-HOSTNAME=127.0.0.1
+HOSTNAME=$(hostname -i | awk '{print $1}')
 EOF
 chmod 600 /data/config/addon.env
 

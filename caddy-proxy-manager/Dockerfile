@@ -12,6 +12,7 @@ FROM golang:1.24-alpine AS supervisord-bin
 RUN apk add --no-cache git \
     && git clone https://github.com/ochinchina/supervisord.git /src/supervisord \
     && cd /src/supervisord \
+    && git checkout 16cb640325b3a4962b2ba17d68fb5c2b1e1b6b3c \
     && go build -o /usr/local/bin/supervisord .
 
 # Final image — based on oven/bun:alpine which ships a musl-compatible Bun binary
