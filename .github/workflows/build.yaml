@@ -13,8 +13,51 @@ env:
   IMAGE_NAME: ${{ github.repository_owner }}/caddy-proxy-manager-ha
 
 jobs:
+  version:
+    name: Prepare Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.VERSION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract tag version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="latest"
+          else
+            VERSION=${GITHUB_REF_NAME#v}
+          fi
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Update files
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          VERSION=${{ steps.version.outputs.VERSION }}
+          # Update config.yaml
+          sed -i "s/^version:.*/version: \"${VERSION}\"/" caddy-proxy-manager/config.yaml
+          
+          # Update build.yaml
+          REGISTRY=${{ env.REGISTRY }}
+          IMAGE=${{ env.IMAGE_NAME }}
+          for arch in amd64 aarch64; do
+            sed -i "s|${arch}: .*|${arch}: ${REGISTRY}/${IMAGE}/${arch}:${VERSION}|" caddy-proxy-manager/build.yaml
+          done
+
+      - name: Commit and push updated files
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add caddy-proxy-manager/config.yaml caddy-proxy-manager/build.yaml
+          git diff --cached --quiet || git commit -m "chore: bump version to ${{ steps.version.outputs.VERSION }}"
+          git push origin HEAD:master
+
   build:
     name: Build ${{ matrix.arch }}
+    needs: version
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -44,12 +87,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract tag version
-        id: version
-        run: |
-          VERSION=${GITHUB_REF_NAME#v}
-          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
-
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
@@ -59,45 +96,8 @@ jobs:
           build-args: |
             UPSTREAM_VERSION=${{ env.UPSTREAM_VERSION }}
             BUILD_ARCH=${{ matrix.arch }}
-            BUILD_VERSION=${{ steps.version.outputs.VERSION }}
+            BUILD_VERSION=${{ needs.version.outputs.version }}
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.arch }}:${{ steps.version.outputs.VERSION }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.arch }}:${{ needs.version.outputs.version }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.arch }}:latest
 
-  update-config:
-    name: Update config.yaml version
-    runs-on: ubuntu-latest
-    needs: build
-    permissions:
-      contents: write
-      packages: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Extract tag version
-        id: version
-        run: |
-          VERSION=${GITHUB_REF_NAME#v}
-          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
-
-      - name: Update version in config.yaml
-        run: |
-          sed -i "s/^version:.*/version: \"${{ steps.version.outputs.VERSION }}\"/" caddy-proxy-manager/config.yaml
-
-      - name: Update build.yaml image refs
-        run: |
-          VERSION=${{ steps.version.outputs.VERSION }}
-          REGISTRY=${{ env.REGISTRY }}
-          IMAGE=${{ env.IMAGE_NAME }}
-          for arch in amd64 aarch64; do
-            sed -i "s|${arch}: .*|${arch}: ${REGISTRY}/${IMAGE}/${arch}:${VERSION}|" caddy-proxy-manager/build.yaml
-          done
-
-      - name: Commit and push updated config
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add caddy-proxy-manager/config.yaml caddy-proxy-manager/build.yaml
-          git diff --cached --quiet || git commit -m "chore: bump version to ${{ steps.version.outputs.VERSION }}"
-          git push origin HEAD:master

@@ -8,8 +8,9 @@ FROM caddy:alpine AS caddy-bin
 # Final stage
 FROM ghcr.io/hassio-addons/base:18.2.0
 
-# Re-declare BUILD_ARCH
+# Re-declare BUILD_ARCH and BUILD_VERSION
 ARG BUILD_ARCH
+ARG BUILD_VERSION=unknown
 
 # Set shell
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -55,7 +56,7 @@ RUN mkdir -p /etc/s6-overlay/s6-rc.d/init-data/dependencies.d \
     && printf "oneshot" > /etc/s6-overlay/s6-rc.d/init-config/type \
     && touch /etc/s6-overlay/s6-rc.d/init-config/up \
     && touch /etc/s6-overlay/s6-rc.d/init-config/dependencies.d/init-data \
-    && printf "#!/command/with-contenv bashio\nbashio::log.info \"--- ADD-ON CONFIGURATION VERSION 1.4-ha.28 ---\"\nSESSION_SECRET=\$(bashio::config 'session_secret')\nif bashio::var.is_empty \"\${SESSION_SECRET}\"; then\n    if [ ! -f /data/.session_secret ]; then\n        SESSION_SECRET=\$(openssl rand -base64 32)\n        echo \"\${SESSION_SECRET}\" > /data/.session_secret\n    else\n        SESSION_SECRET=\$(cat /data/.session_secret)\n    fi\nfi\nexport SESSION_SECRET\nexport ADMIN_USERNAME=\$(bashio::config 'admin_username')\nexport ADMIN_PASSWORD=\$(bashio::config 'admin_password')\nexport HTTP_PORT=\$(bashio::config 'http_port')\nexport HTTPS_PORT=\$(bashio::config 'https_port')\nexport DATABASE_URL=\"file:/data/db/caddy-proxy-manager.db\"\nexport CADDY_API_URL=\"http://localhost:2019\"\nexport PORT=\"3000\"\nS6_ENV_DIR=\"/run/s6/container_environment\"\n[ -d \"\$S6_ENV_DIR\" ] || S6_ENV_DIR=\"/var/run/s6/container_environment\"\nif [ -d \"\$S6_ENV_DIR\" ]; then\n    for var in SESSION_SECRET ADMIN_USERNAME ADMIN_PASSWORD HTTP_PORT HTTPS_PORT DATABASE_URL CADDY_API_URL PORT; do\n        printf \"%%s\" \"\${!var}\" > \"\$S6_ENV_DIR/\$var\"\n    done\n    printf \"%%s\" \"production\" > \"\$S6_ENV_DIR/NODE_ENV\"\nfi\nbashio::log.info \"Configuration loaded.\"\n" > /etc/s6-overlay/s6-rc.d/init-config/run \
+    && printf "#!/command/with-contenv bashio\nbashio::log.info \"--- ADD-ON CONFIGURATION VERSION ${BUILD_VERSION} ---\"\nSESSION_SECRET=\$(bashio::config 'session_secret')\nif bashio::var.is_empty \"\${SESSION_SECRET}\"; then\n    if [ ! -f /data/.session_secret ]; then\n        SESSION_SECRET=\$(openssl rand -base64 32)\n        echo \"\${SESSION_SECRET}\" > /data/.session_secret\n    else\n        SESSION_SECRET=\$(cat /data/.session_secret)\n    fi\nfi\nexport SESSION_SECRET\nexport ADMIN_USERNAME=\$(bashio::config 'admin_username')\nexport ADMIN_PASSWORD=\$(bashio::config 'admin_password')\nexport HTTP_PORT=\$(bashio::config 'http_port')\nexport HTTPS_PORT=\$(bashio::config 'https_port')\nexport DATABASE_URL=\"file:/data/db/caddy-proxy-manager.db\"\nexport CADDY_API_URL=\"http://localhost:2019\"\nexport PORT=\"3000\"\nS6_ENV_DIR=\"/run/s6/container_environment\"\n[ -d \"\$S6_ENV_DIR\" ] || S6_ENV_DIR=\"/var/run/s6/container_environment\"\nif [ -d \"\$S6_ENV_DIR\" ]; then\n    for var in SESSION_SECRET ADMIN_USERNAME ADMIN_PASSWORD HTTP_PORT HTTPS_PORT DATABASE_URL CADDY_API_URL PORT; do\n        printf \"%%s\" \"\${!var}\" > \"\$S6_ENV_DIR/\$var\"\n    done\n    printf \"%%s\" \"production\" > \"\$S6_ENV_DIR/NODE_ENV\"\nfi\nbashio::log.info \"Configuration loaded.\"\n" > /etc/s6-overlay/s6-rc.d/init-config/run \
     && printf "longrun" > /etc/s6-overlay/s6-rc.d/caddy/type \
     && touch /etc/s6-overlay/s6-rc.d/caddy/dependencies.d/init-config \
     && touch /etc/s6-overlay/s6-rc.d/caddy/dependencies.d/init-data \
@@ -71,7 +72,7 @@ RUN mkdir -p /etc/s6-overlay/s6-rc.d/init-data/dependencies.d \
     && chmod -R +x /etc/s6-overlay/s6-rc.d/
 
 # Expose version
-RUN echo "1.4-ha.28" > /VERSION
+RUN echo "${BUILD_VERSION}" > /VERSION
 
 # Build arguments for Labels
 ARG BUILD_DATE
