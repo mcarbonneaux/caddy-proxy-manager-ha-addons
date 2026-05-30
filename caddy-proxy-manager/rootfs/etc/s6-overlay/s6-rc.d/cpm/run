@@ -1,22 +1,12 @@
-#!/usr/bin/env bashio
+#!/command/with-contenv bashio
 # shellcheck shell=bash
-set +e
 # ==============================================================================
 # Home Assistant Add-on: Caddy Proxy Manager
 # Service: Caddy Proxy Manager (Next.js)
 # ==============================================================================
 bashio::log.info "Starting caddy-proxy-manager..."
 
-# Load environment variables from s6 container_environment
-S6_ENV_DIR="/run/s6/container_environment"
-[ ! -d "$S6_ENV_DIR" ] && S6_ENV_DIR="/var/run/s6/container_environment"
-if [ -d "$S6_ENV_DIR" ]; then
-    for var in "$S6_ENV_DIR"/*; do
-        [ -f "$var" ] && export "$(basename "$var")=$(cat "$var")"
-    done
-fi
-
-if [ -z "${SESSION_SECRET:-}" ]; then
+if bashio::var.is_empty "${SESSION_SECRET}"; then
     bashio::log.fatal "SESSION_SECRET is empty — init-config failed to write env vars"
     exit 1
 fi
@@ -34,12 +24,15 @@ bashio::log.info "SESSION_SECRET length: ${#SESSION_SECRET}, PORT: ${PORT:-3000}
 } > /app/.env
 cp /app/.env /app/.env.local
 
-cd /app
-exec env SESSION_SECRET="${SESSION_SECRET}" \
-         ADMIN_USERNAME="${ADMIN_USERNAME}" \
-         ADMIN_PASSWORD="${ADMIN_PASSWORD}" \
-         DATABASE_URL="${DATABASE_URL}" \
-         CADDY_API_URL="${CADDY_API_URL}" \
-         PORT="${PORT:-3000}" \
-         NODE_ENV="production" \
-         node server.js 2>&1
+cd /app \
+    || bashio::exit.nok "Could not change directory to /app"
+
+exec env \
+    SESSION_SECRET="${SESSION_SECRET}" \
+    ADMIN_USERNAME="${ADMIN_USERNAME}" \
+    ADMIN_PASSWORD="${ADMIN_PASSWORD}" \
+    DATABASE_URL="${DATABASE_URL}" \
+    CADDY_API_URL="${CADDY_API_URL}" \
+    PORT="${PORT:-3000}" \
+    NODE_ENV="production" \
+    node server.js 2>&1

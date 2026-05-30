@@ -1,6 +1,5 @@
-#!/usr/bin/env bashio
+#!/command/with-contenv bashio
 # shellcheck shell=bash
-set +e
 # ==============================================================================
 # Home Assistant Add-on: Caddy Proxy Manager
 # Initializing /data directories
