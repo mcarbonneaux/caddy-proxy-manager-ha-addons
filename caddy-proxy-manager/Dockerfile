@@ -7,8 +7,12 @@ FROM caddy:alpine AS caddy-bin
 # CPM web app
 FROM ghcr.io/fuomag9/caddy-proxy-manager-web:latest AS cpm-app
 
-# go-supervisord
-FROM ochinchina/supervisord:latest AS supervisord-bin
+# Build go-supervisord from source (ensures correct arch)
+FROM golang:1.24-alpine AS supervisord-bin
+RUN apk add --no-cache git \
+    && git clone https://github.com/ochinchina/supervisord.git /src/supervisord \
+    && cd /src/supervisord \
+    && go build -o /usr/local/bin/supervisord .
 
 # Final image
 FROM alpine:3.19
@@ -30,6 +34,9 @@ COPY --from=supervisord-bin /usr/local/bin/supervisord /usr/bin/supervisord
 COPY rootfs /
 
 RUN chmod +x /usr/local/bin/init-config.sh \
+    && chmod +x /usr/local/bin/entrypoint.sh \
+    && chmod +x /usr/local/bin/caddy-start.sh \
+    && chmod +x /usr/local/bin/cpm-start.sh \
     && mkdir -p /data/db /data/certs /data/config /data/logs
 
 RUN echo "${BUILD_VERSION}" > /VERSION
@@ -47,4 +54,4 @@ LABEL \
     io.hass.type="addon" \
     io.hass.version="${BUILD_VERSION}"
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+CMD ["/usr/local/bin/entrypoint.sh"]
