@@ -7,6 +7,9 @@ FROM caddy:alpine AS caddy-bin
 # CPM web app
 FROM ghcr.io/fuomag9/caddy-proxy-manager-web:latest AS cpm-app
 
+# Bun runtime
+FROM oven/bun:alpine AS bun-bin
+
 # Build go-supervisord from source (ensures correct arch)
 FROM golang:1.24-alpine AS supervisord-bin
 RUN apk add --no-cache git \
@@ -24,12 +27,12 @@ RUN apk add --no-cache \
     bash \
     jq \
     openssl \
-    nodejs \
     sqlite
 
 COPY --from=caddy-bin /usr/bin/caddy /usr/bin/caddy
 COPY --from=cpm-app /app /app
 COPY --from=supervisord-bin /usr/local/bin/supervisord /usr/bin/supervisord
+COPY --from=bun-bin /usr/local/bin/bun /usr/local/bin/bun
 
 COPY rootfs /
 

@@ -3,8 +3,8 @@ version: "1.4-ha.40"
 slug: caddy_proxy_manager
 description: >
   Caddy reverse proxy managed by caddy-proxy-manager web UI.
-  IMPORTANT: Ensure session_secret is at least 32 characters long.
-  admin_username and admin_password are used to log in to the management interface.
+  IMPORTANT: admin_password must be at least 12 characters and include uppercase, lowercase, and a number (e.g. Admin123456!).
+  session_secret is auto-generated if left empty.
   http_port and https_port define the ports Caddy will use on your network.
 url: https://github.com/mcarbonneaux/caddy-proxy-manager-ha-addons
 arch:
