@@ -11,8 +11,6 @@ arch:
   - amd64
   - aarch64
 
-host_network: true
-
 ports:
   80/tcp: 80
   443/tcp: 443
@@ -23,6 +21,7 @@ ports_description:
 
 ingress: true
 ingress_port: 3000
+ingress_entry: /
 panel_icon: mdi:shield-check
 panel_title: Caddy Proxy Manager
 options:
