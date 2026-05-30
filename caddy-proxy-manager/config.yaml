@@ -28,15 +28,11 @@ options:
   session_secret: ""
   admin_username: admin
   admin_password: ""
-  http_port: 80
-  https_port: 443
 
 schema:
   session_secret: str
   admin_username: str
   admin_password: str
-  http_port: int
-  https_port: int
 
 map:
   - data:rw
