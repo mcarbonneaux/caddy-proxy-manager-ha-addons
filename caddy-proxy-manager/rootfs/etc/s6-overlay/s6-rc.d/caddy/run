@@ -1,5 +1,6 @@
 #!/usr/bin/env bashio
 # shellcheck shell=bash
+set +e
 # ==============================================================================
 # Home Assistant Add-on: Caddy Proxy Manager
 # Service: Caddy
@@ -9,14 +10,14 @@ S6_ENV_DIR="/run/s6/container_environment"
 [ ! -d "$S6_ENV_DIR" ] && S6_ENV_DIR="/var/run/s6/container_environment"
 if [ -d "$S6_ENV_DIR" ]; then
     for var in "$S6_ENV_DIR"/*; do
-        export "$(basename "$var")=$(cat "$var")"
+        [ -f "$var" ] && export "$(basename "$var")=$(cat "$var")"
     done
 fi
 
 # Fallback: create caddy.json if init-config didn't produce it
 if [ ! -f /data/config/caddy.json ]; then
     _http_port="${HTTP_PORT:-80}"
-    bashio::log.warn "caddy.json missing — creating default on port ${_http_port}"
+    bashio::log.info "caddy.json missing — creating default on port ${_http_port}"
     mkdir -p /data/config
     printf '{"apps":{"http":{"servers":{"srv0":{"listen":[":%s"],"routes":[]}}}}}\n' "${_http_port}" \
         > /data/config/caddy.json

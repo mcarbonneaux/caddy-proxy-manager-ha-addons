@@ -1,54 +1,42 @@
 #!/usr/bin/env bashio
 # shellcheck shell=bash
+set +e
 # ==============================================================================
 # Home Assistant Add-on: Caddy Proxy Manager
 # Loading configuration and preparing environment
 # ==============================================================================
-bashio::log.info "--- ADD-ON CONFIGURATION VERSION 1.4-ha.27 ---"
-bashio::log.info "Reading add-on options..."
+bashio::log.info "--- ADD-ON CONFIGURATION ---"
 
-SESSION_SECRET=$(bashio::config 'session_secret')
-if bashio::var.is_empty "${SESSION_SECRET}"; then
-    if [ ! -f /data/.session_secret ]; then
+SESSION_SECRET=$(bashio::config 'session_secret' 2>/dev/null || echo "")
+if [ -z "${SESSION_SECRET}" ] || [ "${SESSION_SECRET}" = "null" ]; then
+    if [ -f /data/.session_secret ]; then
+        bashio::log.info "Loading session_secret from storage..."
+        SESSION_SECRET=$(cat /data/.session_secret)
+    else
         bashio::log.info "Generating random session_secret..."
         SESSION_SECRET=$(openssl rand -base64 32)
         echo "${SESSION_SECRET}" > /data/.session_secret
-    else
-        bashio::log.info "Loading session_secret from storage..."
-        SESSION_SECRET=$(cat /data/.session_secret)
     fi
 fi
 
-ADMIN_USERNAME=$(bashio::config 'admin_username')
-ADMIN_PASSWORD=$(bashio::config 'admin_password')
-HTTP_PORT=$(bashio::config 'http_port')
-HTTPS_PORT=$(bashio::config 'https_port')
+ADMIN_USERNAME=$(bashio::config 'admin_username' 2>/dev/null || echo "admin")
+ADMIN_PASSWORD=$(bashio::config 'admin_password' 2>/dev/null || echo "")
+HTTP_PORT=$(bashio::config 'http_port' 2>/dev/null || echo "80")
+HTTPS_PORT=$(bashio::config 'https_port' 2>/dev/null || echo "443")
 
-# Validate required fields
-if [ ${#SESSION_SECRET} -lt 32 ]; then
-  bashio::exit.nok "session_secret must be at least 32 characters long"
-fi
-if bashio::var.is_empty "${ADMIN_PASSWORD}"; then
-  bashio::exit.nok "admin_password must not be empty"
-fi
+[ -z "${ADMIN_USERNAME}" ] || [ "${ADMIN_USERNAME}" = "null" ] && ADMIN_USERNAME="admin"
+[ -z "${HTTP_PORT}" ]      || [ "${HTTP_PORT}" = "null" ]      && HTTP_PORT="80"
+[ -z "${HTTPS_PORT}" ]     || [ "${HTTPS_PORT}" = "null" ]     && HTTPS_PORT="443"
 
-# Write env vars for s6 child processes
-export SESSION_SECRET
-export ADMIN_USERNAME
-export ADMIN_PASSWORD
-export HTTP_PORT
-export HTTPS_PORT
-export DATABASE_URL="file:/data/db/caddy-proxy-manager.db"
-export CADDY_API_URL="http://localhost:2019"
-export PORT="3000"
+DATABASE_URL="file:/data/db/caddy-proxy-manager.db"
+CADDY_API_URL="http://localhost:2019"
+PORT="3000"
+NODE_ENV="production"
 
-# Find s6 environment directory
+# Write to s6 container_environment for longrun services
 S6_ENV_DIR=""
-for _candidate in /run/s6/container_environment /var/run/s6/container_environment; do
-    if [ -d "$_candidate" ]; then
-        S6_ENV_DIR="$_candidate"
-        break
-    fi
+for _c in /run/s6/container_environment /var/run/s6/container_environment; do
+    [ -d "$_c" ] && { S6_ENV_DIR="$_c"; break; }
 done
 
 if [ -n "$S6_ENV_DIR" ]; then
@@ -61,41 +49,16 @@ if [ -n "$S6_ENV_DIR" ]; then
     printf "%s" "${DATABASE_URL}"    > "$S6_ENV_DIR/DATABASE_URL"
     printf "%s" "${CADDY_API_URL}"   > "$S6_ENV_DIR/CADDY_API_URL"
     printf "%s" "${PORT}"            > "$S6_ENV_DIR/PORT"
-    printf "%s" "production"         > "$S6_ENV_DIR/NODE_ENV"
+    printf "%s" "${NODE_ENV}"        > "$S6_ENV_DIR/NODE_ENV"
 else
-    bashio::log.warn "Could not find s6 environment directory! (checked /run/s6 and /var/run/s6)"
+    bashio::log.warn "s6 container_environment not found (checked /run/s6 and /var/run/s6)"
 fi
 
-# BASE_URL: use ingress URL if available, otherwise localhost
-if bashio::var.has_value "$(bashio::addon.ingress_url 2>/dev/null)"; then
-  BASE_URL=$(bashio::addon.ingress_url)
-else
-  BASE_URL="http://localhost:3000"
-fi
-export BASE_URL
-[ -d "$S6_ENV_DIR" ] && printf "%s" "${BASE_URL}" > "$S6_ENV_DIR/BASE_URL"
-
-# Create default caddy.json if missing (uses configured ports)
+# Create default caddy.json if missing, using the configured HTTP port
 if [ ! -f /data/config/caddy.json ]; then
-    bashio::log.info "Creating default caddy.json (HTTP_PORT=${HTTP_PORT}, HTTPS_PORT=${HTTPS_PORT})..."
-    cat > /data/config/caddy.json << EOF
-{
-  "apps": {
-    "http": {
-      "servers": {
-        "srv0": {
-          "listen": [":${HTTP_PORT}"],
-          "routes": []
-        }
-      }
-    }
-  }
-}
-EOF
+    bashio::log.info "Creating default caddy.json on port ${HTTP_PORT}..."
+    printf '{"apps":{"http":{"servers":{"srv0":{"listen":[":%s"],"routes":[]}}}}}\n' "${HTTP_PORT}" \
+        > /data/config/caddy.json
 fi
 
-# Log values
-bashio::log.info "Configuration loaded."
-bashio::log.info "DEBUG: SESSION_SECRET length: ${#SESSION_SECRET}"
-bashio::log.info "DEBUG: ADMIN_USERNAME: ${ADMIN_USERNAME}"
-bashio::log.info "DEBUG: PORT: ${PORT}"
+bashio::log.info "Configuration loaded: HTTP_PORT=${HTTP_PORT} HTTPS_PORT=${HTTPS_PORT} SECRET_LEN=${#SESSION_SECRET}"
