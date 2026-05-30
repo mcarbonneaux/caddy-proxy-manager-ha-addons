@@ -38,14 +38,25 @@ DATABASE_URL=file:/data/db/caddy-proxy-manager.db
 CADDY_API_URL=http://localhost:2019
 PORT=3000
 NODE_ENV=production
+HOSTNAME=127.0.0.1
 EOF
 chmod 600 /data/config/addon.env
 
-# Créer caddy.json par défaut si absent
-if [ ! -f /data/config/caddy.json ]; then
+# Créer caddy.json par défaut si absent ou si le port ne correspond pas
+CADDY_JSON=/data/config/caddy.json
+NEED_CREATE=true
+if [ -f "${CADDY_JSON}" ]; then
+    CURRENT_PORT=$(jq -r '.apps.http.servers.srv0.listen[0] // ""' "${CADDY_JSON}" 2>/dev/null | tr -d ':')
+    if [ "${CURRENT_PORT}" = "${HTTP_PORT}" ]; then
+        NEED_CREATE=false
+    else
+        echo "[INFO] init-config: caddy.json port mismatch (was :${CURRENT_PORT}, now :${HTTP_PORT}), regenerating..."
+    fi
+fi
+if [ "${NEED_CREATE}" = "true" ]; then
     echo "[INFO] init-config: creating default caddy.json on port ${HTTP_PORT}..."
     printf '{"apps":{"http":{"servers":{"srv0":{"listen":[":%s"],"routes":[]}}}}}\n' \
-        "${HTTP_PORT}" > /data/config/caddy.json
+        "${HTTP_PORT}" > "${CADDY_JSON}"
 fi
 
 echo "[INFO] init-config: done."
