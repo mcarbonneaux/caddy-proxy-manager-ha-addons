@@ -43,10 +43,16 @@ export CADDY_API_URL="http://localhost:2019"
 export PORT="3000"
 
 # Find s6 environment directory
-S6_ENV_DIR="/var/run/s6/container_environment"
-[ ! -d "$S6_ENV_DIR" ] && S6_ENV_DIR="/run/s6/container_environment"
+S6_ENV_DIR=""
+for _candidate in /run/s6/container_environment /var/run/s6/container_environment; do
+    if [ -d "$_candidate" ]; then
+        S6_ENV_DIR="$_candidate"
+        break
+    fi
+done
 
-if [ -d "$S6_ENV_DIR" ]; then
+if [ -n "$S6_ENV_DIR" ]; then
+    bashio::log.info "Writing env vars to ${S6_ENV_DIR}"
     printf "%s" "${SESSION_SECRET}"  > "$S6_ENV_DIR/SESSION_SECRET"
     printf "%s" "${ADMIN_USERNAME}"  > "$S6_ENV_DIR/ADMIN_USERNAME"
     printf "%s" "${ADMIN_PASSWORD}"  > "$S6_ENV_DIR/ADMIN_PASSWORD"
@@ -57,7 +63,7 @@ if [ -d "$S6_ENV_DIR" ]; then
     printf "%s" "${PORT}"            > "$S6_ENV_DIR/PORT"
     printf "%s" "production"         > "$S6_ENV_DIR/NODE_ENV"
 else
-    bashio::log.warn "Could not find s6 environment directory!"
+    bashio::log.warn "Could not find s6 environment directory! (checked /run/s6 and /var/run/s6)"
 fi
 
 # BASE_URL: use ingress URL if available, otherwise localhost
