@@ -13,5 +13,14 @@ if [ -d "$S6_ENV_DIR" ]; then
     done
 fi
 
+# Fallback: create caddy.json if init-config didn't produce it
+if [ ! -f /data/config/caddy.json ]; then
+    _http_port="${HTTP_PORT:-80}"
+    bashio::log.warn "caddy.json missing — creating default on port ${_http_port}"
+    mkdir -p /data/config
+    printf '{"apps":{"http":{"servers":{"srv0":{"listen":[":%s"],"routes":[]}}}}}\n' "${_http_port}" \
+        > /data/config/caddy.json
+fi
+
 bashio::log.info "Starting Caddy..."
 exec /usr/bin/caddy run --config /data/config/caddy.json --adapter json 2>&1

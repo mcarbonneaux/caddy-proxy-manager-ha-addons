@@ -17,6 +17,11 @@ if [ -d "$S6_ENV_DIR" ]; then
     done
 fi
 
+if [ -z "${SESSION_SECRET:-}" ]; then
+    bashio::log.fatal "SESSION_SECRET is not set — init-config did not run correctly"
+    exit 1
+fi
+
 # Emergency .env file creation
 {
     echo "SESSION_SECRET=$SESSION_SECRET"
