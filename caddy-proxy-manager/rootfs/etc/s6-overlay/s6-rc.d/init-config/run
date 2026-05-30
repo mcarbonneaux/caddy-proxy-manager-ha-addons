@@ -69,6 +69,25 @@ fi
 export BASE_URL
 [ -d "$S6_ENV_DIR" ] && printf "%s" "${BASE_URL}" > "$S6_ENV_DIR/BASE_URL"
 
+# Create default caddy.json if missing (uses configured ports)
+if [ ! -f /data/config/caddy.json ]; then
+    bashio::log.info "Creating default caddy.json (HTTP_PORT=${HTTP_PORT}, HTTPS_PORT=${HTTPS_PORT})..."
+    cat > /data/config/caddy.json << EOF
+{
+  "apps": {
+    "http": {
+      "servers": {
+        "srv0": {
+          "listen": [":${HTTP_PORT}"],
+          "routes": []
+        }
+      }
+    }
+  }
+}
+EOF
+fi
+
 # Log values
 bashio::log.info "Configuration loaded."
 bashio::log.info "DEBUG: SESSION_SECRET length: ${#SESSION_SECRET}"
