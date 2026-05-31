@@ -7,7 +7,7 @@ FROM caddy:alpine AS caddy-bin
 # CPM web app — built from fork
 FROM oven/bun:1-alpine AS cpm-app
 RUN apk add --no-cache git python3 make g++
-RUN git clone --depth 1 --branch relativepath https://github.com/mcarbonneaux/caddy-proxy-manager.git /app-src
+RUN git clone --depth 1 --branch basepath https://github.com/mcarbonneaux/caddy-proxy-manager.git /app-src
 WORKDIR /app-src
 RUN bun install --frozen-lockfile
 RUN bun run build
