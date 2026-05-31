@@ -14,14 +14,16 @@ arch:
 ports:
   80/tcp: 80
   443/tcp: 443
+  3000/tcp: 3000
 
 ports_description:
   80/tcp: HTTP
   443/tcp: HTTPS
+  3000/tcp: CPM Web UI
 
 ingress: true
 ingress_port: 3000
-ingress_entry: /
+ingress_entry: /login
 panel_icon: mdi:shield-check
 panel_title: Caddy Proxy Manager
 options:

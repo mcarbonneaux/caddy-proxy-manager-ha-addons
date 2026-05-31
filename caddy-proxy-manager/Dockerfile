@@ -4,8 +4,14 @@ ARG BUILD_VERSION=unknown
 # Caddy binary
 FROM caddy:alpine AS caddy-bin
 
-# CPM web app
-FROM ghcr.io/fuomag9/caddy-proxy-manager-web:latest AS cpm-app
+# CPM web app — built from fork
+FROM oven/bun:1-alpine AS cpm-app
+RUN apk add --no-cache git python3 make g++
+RUN git clone --depth 1 --branch relativepath https://github.com/mcarbonneaux/caddy-proxy-manager.git /app-src
+WORKDIR /app-src
+RUN bun install --frozen-lockfile
+RUN bun run build
+RUN cp -r .next/standalone /app && cp -r .next/static /app/.next/static && cp -r public /app/public 2>/dev/null || true
 
 # Build go-supervisord from source (ensures correct arch)
 FROM golang:1.24-alpine AS supervisord-bin
