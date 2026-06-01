@@ -29,6 +29,7 @@ ARG BUILD_VERSION
 
 RUN apk add --no-cache \
     bash \
+    curl \
     jq \
     openssl \
     sqlite
